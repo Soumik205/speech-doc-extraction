@@ -7,12 +7,12 @@ dependencies = [
     "uvicorn[standard]",
     "pydantic-settings",
     "python-multipart",
+    "httpx",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "httpx",
 ]
 
 [build-system]
