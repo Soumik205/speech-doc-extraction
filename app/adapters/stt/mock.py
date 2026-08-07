@@ -26,7 +26,7 @@ class MockSTTAdapter:
     def name(self) -> str:
         return "mock"
 
-    def transcribe(self, audio_bytes: bytes, language: str) -> TranscriptionResult:
+    def transcribe(self, audio_bytes: bytes, language: str, audio_format: str) -> TranscriptionResult:
         digest = hashlib.sha256(audio_bytes).hexdigest()
         fixture_name = self._manifest.get(digest, self._manifest[DEFAULT_FIXTURE_KEY])
         with open(self._fixtures_dir / fixture_name) as f:

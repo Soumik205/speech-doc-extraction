@@ -1,6 +1,7 @@
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 
 from app.adapters.audio.probe import probe_audio
+from app.adapters.stt.base import STTProviderError
 from app.adapters.stt.registry import get_stt_adapter
 from app.api.schemas.transcribe import Language, TranscribeResponse
 from app.config import get_settings
@@ -77,7 +78,8 @@ async def transcribe(
             detail={"code": "empty_file", "message": "Uploaded file is empty."},
         )
 
-    if _sniff_audio_format(audio_bytes[:_SNIFF_BYTES]) is None:
+    audio_format = _sniff_audio_format(audio_bytes[:_SNIFF_BYTES])
+    if audio_format is None:
         raise HTTPException(
             status_code=415,
             detail={
@@ -94,7 +96,13 @@ async def transcribe(
         )
 
     adapter = get_stt_adapter()
-    result = transcription.transcribe(adapter, audio_bytes, language, probe)
+    try:
+        result = transcription.transcribe(adapter, audio_bytes, audio_format, language, probe)
+    except STTProviderError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail={"code": "provider_error", "message": "The speech-to-text provider failed."},
+        ) from exc
     return TranscribeResponse(
         transcript=result.transcript,
         detected_language=result.detected_language,

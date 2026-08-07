@@ -8,6 +8,7 @@ REASON_PROVIDER_EMPTY = "provider_returned_nothing"
 def transcribe(
     adapter: STTAdapter,
     audio_bytes: bytes,
+    audio_format: str,
     language: str,
     probe: AudioProbeResult,
 ) -> TranscriptionResult:
@@ -23,7 +24,7 @@ def transcribe(
             reason=REASON_SILENT,
         )
 
-    result = adapter.transcribe(audio_bytes, language)
+    result = adapter.transcribe(audio_bytes, language, audio_format)
     reason = REASON_PROVIDER_EMPTY if result.transcript == "" else None
     return TranscriptionResult(
         transcript=result.transcript,

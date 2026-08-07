@@ -1,5 +1,8 @@
+import subprocess
+
 import pytest
 
+from app.adapters.stt.base import STTProviderError
 from app.config import get_settings
 
 WAV_HEADER = b"RIFF" + b"\x00" * 4 + b"WAVE" + b"\x00" * 40
@@ -75,3 +78,48 @@ def test_invalid_language_rejected(client):
     )
 
     assert resp.status_code == 422
+
+
+class _RaisingAdapter:
+    name = "raising"
+
+    def transcribe(self, audio_bytes, language, audio_format):
+        raise STTProviderError("simulated provider failure")
+
+
+@pytest.fixture(scope="module")
+def valid_wav_bytes(tmp_path_factory) -> bytes:
+    # WAV_HEADER's magic bytes pass the format sniff but aren't decodable
+    # audio, so a real file is needed here to get past the probe step and
+    # reach the adapter call this test is actually exercising.
+    out_path = tmp_path_factory.mktemp("audio") / "tone.wav"
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-loglevel",
+            "error",
+            "-f",
+            "lavfi",
+            "-i",
+            "sine=frequency=1000:duration=1",
+            "-ar",
+            "16000",
+            str(out_path),
+        ],
+        check=True,
+    )
+    return out_path.read_bytes()
+
+
+def test_provider_error_returns_502(client, monkeypatch, valid_wav_bytes):
+    monkeypatch.setattr("app.api.v1.transcribe.get_stt_adapter", lambda: _RaisingAdapter())
+
+    resp = client.post(
+        "/api/v1/transcribe",
+        files={"file": ("a.wav", valid_wav_bytes, "audio/wav")},
+        data={"language": "en"},
+    )
+
+    assert resp.status_code == 502
+    assert resp.json()["code"] == "provider_error"
