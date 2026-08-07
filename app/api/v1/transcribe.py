@@ -1,5 +1,6 @@
 from fastapi import APIRouter, File, Form, UploadFile
 
+from app.adapters.stt.registry import get_stt_adapter
 from app.api.schemas.transcribe import Language, TranscribeResponse
 from app.services import transcription
 
@@ -12,7 +13,8 @@ async def transcribe(
     language: Language = Form(...),
 ) -> TranscribeResponse:
     audio_bytes = await file.read()
-    result = transcription.transcribe(audio_bytes, language)
+    adapter = get_stt_adapter()
+    result = transcription.transcribe(adapter, audio_bytes, language)
     return TranscribeResponse(
         transcript=result.transcript,
         detected_language=result.detected_language,
