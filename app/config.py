@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     stt_model: str = "whisper-large-v3"
     groq_api_key: str | None = None
     max_audio_bytes: int = 25 * 1024 * 1024
+    silence_threshold_dbfs: float = -40.0
 
 
 @lru_cache
