@@ -1,5 +1,6 @@
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 
+from app.adapters.audio.probe import probe_audio
 from app.adapters.stt.registry import get_stt_adapter
 from app.api.schemas.transcribe import Language, TranscribeResponse
 from app.config import get_settings
@@ -85,11 +86,19 @@ async def transcribe(
             },
         )
 
+    probe = await probe_audio(audio_bytes, settings.silence_threshold_dbfs)
+    if probe.error is not None:
+        raise HTTPException(
+            status_code=422,
+            detail={"code": "undecodable_audio", "message": "Audio file could not be decoded."},
+        )
+
     adapter = get_stt_adapter()
-    result = transcription.transcribe(adapter, audio_bytes, language)
+    result = transcription.transcribe(adapter, audio_bytes, language, probe)
     return TranscribeResponse(
         transcript=result.transcript,
         detected_language=result.detected_language,
         duration_seconds=result.duration_seconds,
         provider=result.provider,
+        reason=result.reason,
     )

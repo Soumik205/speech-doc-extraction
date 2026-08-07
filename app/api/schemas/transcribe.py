@@ -7,6 +7,7 @@ Language = Literal["bn", "en", "auto"]
 
 class TranscribeResponse(BaseModel):
     transcript: str
-    detected_language: str
+    detected_language: str | None
     duration_seconds: float
     provider: str
+    reason: str | None = None

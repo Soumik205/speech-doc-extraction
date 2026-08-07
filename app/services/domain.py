@@ -4,9 +4,10 @@ from dataclasses import dataclass
 @dataclass
 class TranscriptionResult:
     transcript: str
-    detected_language: str
+    detected_language: str | None
     duration_seconds: float
     provider: str
+    reason: str | None = None
 
 
 @dataclass
