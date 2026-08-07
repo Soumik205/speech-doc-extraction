@@ -28,7 +28,14 @@ async def validation_exception_handler(
 
 
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
-    body = ErrorResponse(code="http_error", message=str(exc.detail))
+    if isinstance(exc.detail, dict) and "code" in exc.detail and "message" in exc.detail:
+        body = ErrorResponse(
+            code=exc.detail["code"],
+            message=exc.detail["message"],
+            details=exc.detail.get("details"),
+        )
+    else:
+        body = ErrorResponse(code="http_error", message=str(exc.detail))
     return JSONResponse(status_code=exc.status_code, content=body.model_dump())
 
 
