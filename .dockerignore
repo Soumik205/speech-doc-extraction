@@ -1,0 +1,10 @@
+.env
+__pycache__/
+.venv/
+.pytest_cache/
+*.egg-info/
+build/
+.DS_Store
+gcp-credentials.json
+*-key.json
+.git
