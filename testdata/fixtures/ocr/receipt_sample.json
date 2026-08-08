@@ -1,0 +1,12 @@
+[
+  {"text": "SUPERMART GROCERY STORE", "bounding_box": {"x": 50, "y": 18, "width": 280, "height": 24}},
+  {"text": "456 Market Ave, Springfield", "bounding_box": {"x": 50, "y": 46, "width": 260, "height": 20}},
+  {"text": "Date: 15/01/2026  Time: 14:32", "bounding_box": {"x": 50, "y": 74, "width": 260, "height": 20}},
+  {"text": "Milk 2L .................. 3.50", "bounding_box": {"x": 50, "y": 110, "width": 260, "height": 20}},
+  {"text": "Bread Whole Wheat ........ 2.25", "bounding_box": {"x": 50, "y": 134, "width": 270, "height": 20}},
+  {"text": "Eggs Dozen ................ 4.00", "bounding_box": {"x": 50, "y": 158, "width": 265, "height": 20}},
+  {"text": "Subtotal .................. 9.75", "bounding_box": {"x": 50, "y": 190, "width": 260, "height": 20}},
+  {"text": "Tax ........................ 0.68", "bounding_box": {"x": 50, "y": 214, "width": 250, "height": 20}},
+  {"text": "Total ...................... 10.43", "bounding_box": {"x": 50, "y": 240, "width": 260, "height": 22}},
+  {"text": "Thank you for shopping with us!", "bounding_box": {"x": 50, "y": 274, "width": 280, "height": 20}}
+]

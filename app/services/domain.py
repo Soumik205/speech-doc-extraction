@@ -42,3 +42,17 @@ class LabResult:
 class DocumentExtractionResult:
     meta: DocumentMeta
     results: list[LabResult]
+
+
+@dataclass
+class BoundingBox:
+    x: float
+    y: float
+    width: float
+    height: float
+
+
+@dataclass
+class TextLine:
+    text: str
+    bounding_box: BoundingBox
