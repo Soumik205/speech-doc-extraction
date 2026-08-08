@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     groq_api_key: str | None = None
     max_audio_bytes: int = 25 * 1024 * 1024
     silence_threshold_dbfs: float = -40.0
+    ocr_provider: Literal["mock", "google_vision"] = "mock"
+    google_application_credentials: str | None = None
+    max_image_bytes: int = 10 * 1024 * 1024
 
 
 @lru_cache
