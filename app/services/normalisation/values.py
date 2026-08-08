@@ -8,8 +8,9 @@ Qualifier = Literal["lt", "gt", "range"]
 # leading '-' is deliberately not accepted here: it would make "-5" and a
 # malformed range indistinguishable without guessing which one it is.
 _RANGE_RE = re.compile(r"^(\d[\d,]*\.?\d*)\s*-\s*(\d[\d,]*\.?\d*)$")
-_LT_RE = re.compile(r"^<\s*(\d[\d,]*\.?\d*)$")
-_GT_RE = re.compile(r"^>\s*(\d[\d,]*\.?\d*)$")
+_SCIENTIFIC_SUFFIX = r"(\d[\d,]*\.?\d*)(?:\s*[xX]\s*10\^(-?\d+))?"
+_LT_RE = re.compile(rf"^<\s*{_SCIENTIFIC_SUFFIX}$")
+_GT_RE = re.compile(rf"^>\s*{_SCIENTIFIC_SUFFIX}$")
 _SCIENTIFIC_RE = re.compile(r"^(\d[\d,]*\.?\d*)\s*[xX]\s*10\^(-?\d+)$")
 _NUMBER_RE = re.compile(r"^(\d[\d,]*\.?\d*)$")
 
@@ -25,6 +26,12 @@ def _to_float(token: str) -> float:
     return float(token.replace(",", ""))
 
 
+def _qualified_value(match: re.Match[str]) -> float:
+    base = _to_float(match.group(1))
+    exponent = match.group(2)
+    return base * (10 ** int(exponent)) if exponent is not None else base
+
+
 def parse_value(raw: str) -> NormalisedValue:
     stripped = raw.strip()
 
@@ -32,13 +39,16 @@ def parse_value(raw: str) -> NormalisedValue:
     if match:
         return NormalisedValue(value=None, qualifier="range", raw=raw)
 
+    # <N and >N compose with scientific notation in real lab reports
+    # (<1.2 x 10^3), so the same qualifier regex optionally accepts the
+    # "x 10^M" suffix rather than treating the two features as exclusive.
     match = _LT_RE.match(stripped)
     if match:
-        return NormalisedValue(value=_to_float(match.group(1)), qualifier="lt", raw=raw)
+        return NormalisedValue(value=_qualified_value(match), qualifier="lt", raw=raw)
 
     match = _GT_RE.match(stripped)
     if match:
-        return NormalisedValue(value=_to_float(match.group(1)), qualifier="gt", raw=raw)
+        return NormalisedValue(value=_qualified_value(match), qualifier="gt", raw=raw)
 
     match = _SCIENTIFIC_RE.match(stripped)
     if match:
