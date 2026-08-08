@@ -8,6 +8,7 @@ dependencies = [
     "pydantic-settings",
     "python-multipart",
     "httpx",
+    "google-cloud-vision",
 ]
 
 [project.optional-dependencies]
